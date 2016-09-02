@@ -1,7 +1,7 @@
 /**
   login to get access token
 */
-function login(){
+function netatmoLogin(){
   client_id = $(".client_id").val()
   client_secret = $(".client_secret").val()
   id = $(".id").val()
@@ -10,21 +10,24 @@ function login(){
   redirect_uri = $(".redirect_uri").val()
   device_id = $(".device_id").val()
 
-  url = 'access_token?'+'client_id='+client_id+'&client_secret='+client_secret+'&id='+id+'&password='+password+'&scope='+scope+'&redirect_uri='+redirect_uri+'&device_id='+device_id
+  url = redirect_uri+'?client_id='+client_id+'&client_secret='+client_secret+'&id='+id+'&password='+password+'&scope='+scope+'&redirect_uri='+redirect_uri+'&device_id='+device_id
 
   location.href = url
 }
 /**
   getRealTimeData
 */
-function getRealTimeData(access_token, device_id){
+function getNetatmoRealTimeData(access_token, device_id){
+  $.ajaxSetup({
+    headers: null
+  });
   $.ajax({
     method: "GET",
     dataType: 'json',
     url: 'https://api.netatmo.com/api/getstationsdata?access_token='+access_token+'&device_id='+device_id,
     success : function(result){
       var data = {
-                  'timestamp' : result.time_server,
+                  'measured_time' : result.body.devices[0].dashboard_data.time_utc,
                   'humidity' : result.body.devices[0].dashboard_data.Humidity,
                   'temperature' : result.body.devices[0].dashboard_data.Temperature,
                   'CO2' : result.body.devices[0].dashboard_data.CO2,
@@ -32,13 +35,43 @@ function getRealTimeData(access_token, device_id){
                   'pressure' : result.body.devices[0].dashboard_data.Pressure
       }
 
-      $('.realtimeTable').append(`
+      $('.netatmoRealtimeTable').append(`
       <tr>
-      <td>${data.timestamp}</td>
+      <td>${data.measured_time}</td>
       <td>${data.temperature}°C</td>
       <td>${data.humidity}%</td>
       <td>${data.noise}dB</td>
       <td>${data.pressure}mbar</td>
+      <td>${data.CO2}ppm</td>
+      </tr>`)
+    },
+    error : function(r, e){
+      alert("statusCode : "+e.statusCode);
+    }
+  });
+}
+
+function getRealTimeDataModule(access_token, device_id, table_name){
+  $.ajaxSetup({
+    headers: null
+  });
+  $.ajax({
+    method: "GET",
+    dataType: 'json',
+    url: 'https://api.netatmo.com/api/getstationsdata?access_token='+access_token+'&device_id='+device_id,
+    success : function(result){
+      var data = {
+                  'measured_time' : result.body.devices[0].modules[0].dashboard_data.time_utc,
+                  'humidity' : result.body.devices[0].modules[0].dashboard_data.Humidity,
+                  'temperature' : result.body.devices[0].modules[0].dashboard_data.Temperature,
+                  'CO2' : result.body.devices[0].modules[0].dashboard_data.CO2
+      }
+
+      $("."+table_name).append(`
+      <tr>
+      <td>${data.measured_time}</td>
+      <td>${data.temperature}°C</td>
+      <td>${data.humidity}%</td>
       <td>${data.CO2}ppm</td>
       </tr>`)
 

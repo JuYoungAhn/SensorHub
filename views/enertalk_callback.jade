@@ -1,0 +1,6 @@
+extends template
+block content
+  body
+    h1 Access Code Here
+    input(type='text', name='test' value='#{code}')
+    a(href='/enertalk/codeSubmit?code=#{code}') Get Token

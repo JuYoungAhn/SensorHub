@@ -1,0 +1,28 @@
+block content
+  body
+    h2 Enertalk
+    h3 Dashboard
+    div
+      span uuid : #{session.enertalk_uuid}
+      br
+      span access_token : #{session.enertalk_access_token}
+    div
+      button
+        a(href="#" onclick="getEnertalkRealtimeData('#{session.enertalk_access_token}', '#{session.enertalk_uuid}')") 측정하기
+    div
+      table(class='realtimeTable table')
+        tr(class='subjectTr')
+          th timeStamp
+          th apparentPower
+          th activePower
+          th reactivePower
+          th powerFactor
+          th current
+          th voltage
+          th wattHour
+          th powerBase
+
+    script(type='text/javascript').
+       $(document).ready(function(){
+         setInterval(function(){getEnertalkRealtimeData('#{session.enertalk_access_token}', '#{session.enertalk_uuid}');}, 6000);
+       });
