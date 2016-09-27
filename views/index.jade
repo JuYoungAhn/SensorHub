@@ -4,12 +4,22 @@ block content
   div(class='navigater')
     h1 Main Page
     div
-      a(href='/enertalk') Enertalk Login
+      a(href='/enertalk' class="enertalk_login") Enertalk Login
     div
       a(href='/netatmo') Netatmo Login
+    div
+      a(href='/foobot') Foobot Login
+    div
+      a(href='/smappee') Smappee Login
   div(class='enertalk dashboard')
     if session.enertalk_access_token != null
-      include enertalk_dashboard
+      include enertalk/dashboard
   div(class='netatmo dashboard')
     if session.netatmo_access_token != null
-      include netatmo_dashboard
+      include netatmo/dashboard
+  div(class='foobot dashboard')
+    if session.foobot_auth_token != null
+      include foobot/dashboard
+
+  // a(href='enertalk' type='button', data-toggle='modal', data-target='#myModal')
+  //  | Enertalk Login

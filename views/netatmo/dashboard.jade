@@ -1,0 +1,68 @@
+block content
+  body
+    h2 Netatmo
+    div
+      h3 Dashboard
+      span Access Token : #{session.netatmo_access_token}
+      br
+      br
+      span #{session.devices.length}개의 디바이스가 있습니다.
+      br
+      each device in session.devices
+        span Device ID : #{device._id}
+        br
+        span Module Name : #{device.module_name}
+        br
+        span Station Name : #{device.station_name}
+        br
+        span Place Info : #{device.place.location} #{device.place.timezone} #{device.place.country} #{device.place.city}
+        br
+        span
+        button
+          a(onclick="getNetatmoRealTimeData('#{session.netatmo_access_token}', '#{session.netatmo_device_id}')") 측정하기
+        div
+        div
+          table(class='netatmoRealtimeTable table')
+            tr
+              th 시간
+              th 온도
+              th 습도
+              th 소리
+              th 압력
+              th CO2
+            tr
+            tr
+              td #{device.dashboard_data.time_utc}
+              td #{device.dashboard_data.Temperature}°C
+              td #{device.dashboard_data.Humidity}%
+              td #{device.dashboard_data.Noise}dB
+              td #{device.dashboard_data.Pressure}mbar
+              td #{device.dashboard_data.CO2}ppm
+            tr
+        div(class='margin30')
+          = device.modules.length
+          개의 모듈이 있습니다.
+          br
+          each module in device.modules
+              span Module ID : #{module._id}
+              br
+              span Module Name : #{module.module_name}
+              br
+              span Battery : #{module.battery_percent}%
+              br
+              button
+                a(onclick="getRealTimeDataModule('#{session.netatmo_access_token}', '#{session.netatmo_device_id}', 'module')") 측정하기
+              div
+                table(class='table module')
+                  tr
+                    th 시간
+                    th 온도
+                    th 습도
+                    th CO2
+                  tr
+                  tr
+                    td #{module.dashboard_data.time_utc}
+                    td #{module.dashboard_data.Temperature}°C
+                    td #{module.dashboard_data.Humidity}%
+                    td #{module.dashboard_data.CO2}ppm
+                  tr

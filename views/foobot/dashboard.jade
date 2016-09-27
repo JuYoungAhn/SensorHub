@@ -1,0 +1,30 @@
+block content
+  body
+    h1 Foobot Dashboard
+    form(action='foobot/data', method='post', name='foobot_form')
+      div
+        table
+          tr
+            th uuid
+            td
+              input(name="uuid" value="#{session.foobot_uuid}")
+          tr
+            th auth_token
+            td
+              input(name="auth_token" value="#{session.foobot_auth_token}")
+      h4 get data by start end
+      button
+        a(href="#" onclick="foobot_form.submit()") 측정하기
+      table
+        tr
+          th start
+          td
+            input(type='text' name='start' value='2016-09-09T18:00:00+09:00')
+        tr
+          th end
+          td
+            input(type='text' name='end' value='2016-09-10T18:00:00+09:00')
+        tr
+          th average by
+          td
+            input(type='text' name='average' value='300')

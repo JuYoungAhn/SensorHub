@@ -1,0 +1,18 @@
+extends ../template
+block content
+  body
+    h1 Smappee
+    div
+      h4 Your Information
+      form(action="smappee/login" method="post" name="smappee_login_form")
+        table(class='login_table')
+          tr
+            td username
+            td
+              input(type='text' name='username' value="juyoungahn" readonly)
+          tr
+            td password
+            td
+              input(type='text' name='password' value='a4809804' readonly)
+      button
+        a(href='#' onclick='smappee_login_form.submit()') 로그인하기

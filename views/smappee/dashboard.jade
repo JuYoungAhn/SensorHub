@@ -1,0 +1,31 @@
+extends ../template
+block content
+  body
+    h1 Smappee
+    div
+      h4 Dashboard
+      table(class='login_table')
+        tr
+          td service location
+          td
+            input(type='text' name='location' value="#{serviceLocationId}" readonly)
+
+      h4 Get Consumptions
+      form(action='getConsumptions' method='get' name='get_consumtions_form')
+        input(type='hidden' name='serviceLocationId' value="#{serviceLocationId}")
+        div
+          table
+            tr
+              th aggregation
+              td
+                input(type='text' name='aggregation' value='1')
+            tr
+              th from
+              td
+                input(type='text' name='from' value='1474941514000')
+            tr
+              th to
+              td
+                input(type='text' name='to' value='1474941814000')
+          button
+            a(onclick='get_consumtions_form.submit()') getConsumptions

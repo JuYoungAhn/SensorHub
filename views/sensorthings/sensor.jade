@@ -1,0 +1,27 @@
+extends ../template
+block content
+  body
+    h1 Sensor
+
+    table(class='foobot_data_table')
+      tr
+        th name
+        th description
+        th definition
+        th encodingType
+        th place
+        th location
+        th uuid
+        th image
+        th metadata
+      each sensor in sensors
+        tr
+          td #{sensor.name}
+          td #{sensor.description}
+          td #{sensor.definition}
+          td #{sensor.encodingType}
+          td #{sensor.place}
+          td #{sensor.location}
+          td #{sensor.uuid}
+          td #{sensor.image}
+          td #{sensor.metadata}

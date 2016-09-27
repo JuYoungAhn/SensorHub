@@ -17,6 +17,7 @@ html(lang='en')
     script(type='text/javascript' src='/jquery-3.1.0.min.js')
     script(type='text/javascript' src='/netatmo.js')
     script(type='text/javascript' src='/enertalk.js')
+    script(type='text/javascript' src='/foobot.js')
     script(type='text/javascript' src='/common.js')
     link(href='/style.css', rel='stylesheet')
   body
@@ -32,19 +33,32 @@ html(lang='en')
         .collapse.navbar-collapse.navbar-ex1-collapse
           ul#active.nav.navbar-nav.side-nav
             li.selected
-              a(href='#navigater')
+              a(href='/#navigater')
                 i.fa.fa-bullseye
                 |  Home
             if session.netatmo_access_token != null
               li
-                a(href='#netatmo' onclick='netatmoDashboard()')
+                a(href='/#netatmo' onclick='netatmoDashboard()')
                   i.fa.fa-bullseye
                   | Netatmo
             if session.enertalk_access_token != null
               li
-                a(href='#enertalk' onclick="enertalkDashboard()")
+                a(href='/#enertalk' onclick="enertalkDashboard()")
                   i.fa.fa-bullseye
                   | Enertalk
+            if session.foobot_auth_token != null
+              li
+                a(href='/#foobot' onclick="foobotDashboard()")
+                  i.fa.fa-bullseye
+                  | Foobot
+            li
+              a(href='/sensorthings/things')
+                i.fa.fa-bullseye
+                | Things
+            li
+              a(href='/sensorthings/sensor')
+                i.fa.fa-bullseye
+                | Sensor
           ul.nav.navbar-nav.navbar-right.navbar-user
             li.dropdown.messages-dropdown
               a.dropdown-toggle(href='#', data-toggle='dropdown')

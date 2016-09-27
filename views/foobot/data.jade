@@ -1,0 +1,26 @@
+extends ../template
+block content
+  body
+    h1 Foobot Data
+    span #{result.uuid}
+    span #{result.start}
+    span #{result.end}
+
+    table(class='foobot_data_table')
+      tr
+        th timestamp
+        th pm
+        th tmp
+        th hum
+        th co2
+        th voc
+        th allpollu
+      each datapoint in result.datapoints
+        tr
+          td #{datapoint[0]}
+          td #{datapoint[1]}
+          td #{datapoint[2]}
+          td #{datapoint[3]}
+          td #{datapoint[4]}
+          td #{datapoint[5]}
+          td #{datapoint[6]}

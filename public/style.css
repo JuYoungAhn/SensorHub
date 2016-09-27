@@ -7,3 +7,9 @@ input {color:black}
 
 .netatmo {display:none}
 .enertalk {display:none}
+.foobot {display:none}
+iframe {color:white}
+body{color:white}
+
+.foobot_data_table th {width:150px;text-align:center}
+.foobot_data_table td {text-align:center}

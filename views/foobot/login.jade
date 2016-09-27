@@ -1,0 +1,18 @@
+extends ../template
+block content
+  body
+    h1 Foobot
+    div
+      h4 Your Information
+      form(action="foobot/login" method="post" name="foobot_login_form")
+        table(class='login_table')
+          tr
+            td User ID
+            td
+              input(type='text' name='user_id' value="yoo@byoo.net" readonly)
+          tr
+            td Auth Token
+            td
+              input(type='text' name='auth_token' value='eyJhbGciOiJIUzI1NiJ9.eyJncmFudGVlIjoieW9vQGJ5b28ubmV0IiwiaWF0IjoxNDczMjMxOTIyLCJ2YWxpZGl0eSI6LTEsImp0aSI6IjhjNzQ3YWY1LWVhZjktNDM5MS1iMzgxLTJiMjczYzVlOTMzZCIsInBlcm1pc3Npb25zIjpbInVzZXI6cmVhZCIsImRldmljZTpyZWFkIl0sInF1b3RhIjoyMDAsInJhdGVMaW1pdCI6NX0.420F_GLXXGCaTnx82hGG0M0Nysfoek3A3nOxuB0Z5no' readonly)
+      button
+        a(href='#' onclick='foobotLogin()') 로그인하기

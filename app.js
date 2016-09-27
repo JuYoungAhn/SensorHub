@@ -14,6 +14,20 @@ var moment = require('moment');
 var querystring = require('querystring');
 var path = require("path");
 var session = require('express-session')
+var mongoose = require('mongoose');
+var sensorthings = require('./sensorthings.js');
+var SmappeeAPI = require('smappee-nodejs');
+var moment = require('moment');
+var enertalk = require('./my-enertalk');
+var sensorApi = require('./sensor-api');
+var smappee = null;
+
+// Load jsdom, and create a window.
+var jsdom = require("jsdom").jsdom;
+var doc = jsdom();
+var window = doc.defaultView;
+// Load jQuery with the simulated jsdom window.
+$ = require('jquery')(window);
 
 app.locals.pretty = true;
 app.set('view engine', 'jade');
@@ -38,13 +52,8 @@ app.get('/', function(req, res){
         Reference :
         https://dev.netatmo.com/dev/resources/technical/reference/weatherstation/getstationsdata
 */
-
-/**
-    Get Access Token From User Information
-*/
 app.get('/netatmo', function(req, res){
-  req.session.test = 'test'
-  res.render('netatmo', {session : req.session})
+  res.render('netatmo/login')
 })
 app.get('/netatmo/access_token', function(req, res){
   var access_token = null // access_token
@@ -75,10 +84,9 @@ app.get('/netatmo/access_token', function(req, res){
   // request access_token
   request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        console.log("Success")
         json = JSON.parse(body) // parse data to json
         access_token = json.access_token // get accee_token
-        res.render('netatmo_access_token', {access_token : access_token, device_id : device_id})
+        res.render('netatmo/access_token', {access_token : access_token, device_id : device_id})
       }
       else {
         console.log("Fail : "+response.statusCode)
@@ -149,140 +157,92 @@ app.get('/netatmo/dashboard', function(req, res){
       https://developer.encoredtech.com/
 */
 app.get('/enertalk', function(req, res){
-    res.render('enertalk');
+    res.render('enertalk/login');
 });
 // 에너톡 로그인 완료후 callback function
 app.get('/callback', function(req, res){
   var url = req.url;
   var authCode = url.split("code=")[1];
-  res.render('enertalk_callback', {code : authCode})
+  res.render('enertalk/callback', {code : authCode})
 })
 // 코드로부터 Access Token을 받아옴
 app.get('/enertalk/codeSubmit', function(req, res){
-  var accessToken = null;
-  var refreshToken = null;
-  var headersUuid = {}
-  var uuid = null;
   var code = req.param('code')
-
-  // Get Access Token from Code
-  function getAccessToken(code, callback){
-    var headers = {
-        'User-Agent':       'Super Agent/0.0.1',
-        'Content-Type':     'application/json'
-    }
-
-    var options = {
-        url: 'http://enertalk-auth.encoredtech.com/token',
-        method: 'POST',
-        headers: headers,
-        form: {
-          'client_id': 'ank5MzYzMEBuYXZlci5jb21faW1yYw==', // insert your client_id
-          "client_secret": "x410y4ls6xz80w4zh66l4th3gk7f29z761d13d6", // insert your client_secret
-          "grant_type" : "authorization_code",
-          "code": code
-        }
-    }
-    request(options, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            // Print out the response body
-            console.log("Get Access Token")
-            console.log("Good")
-            accessToken = JSON.parse(body)["access_token"];
-            refreshToken = JSON.parse(body)["refresh_token"];
-            headersUuid = {'Authorization':'Bearer '+accessToken}
-            callback();
-        }
-        else {
-          console.log("Get Access Token")
-          console.log("Fail")
-        }
-    })
-  }
-
-  // Get Access Token and Get UUID via callback function */
-  getAccessToken(code, function(){
-    var optionsUuid = {
-        url: 'https://enertalk-auth.encoredtech.com/uuid',
-        method: 'GET',
-        headers: headersUuid,
-    }
-
-    request(optionsUuid, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log("Get UUID")
-            console.log("good")
-            uuid = JSON.parse(body)["uuid"]
-            console.log("uuid : "+uuid)
-            res.redirect('/enertalk/dashboard?uuid='+uuid+'&accessToken='+accessToken)
-        }
-        else {
-          console.log("Get UUID")
-          console.log("fail")
-        }
-    })
+  enertalk.getUuid(code, function(accessToken, uuid){
+      res.redirect('/enertalk/dashboard?uuid='+uuid+'&accessToken='+accessToken)
+  })
+})
+app.get('/enertalk/userInformation', function(req, res){
+  var acceeToken = req.session.enertalk_access_token
+  enertalk.userInformation(accessToken, function(result){
+    res.send(result)
+  })
+})
+app.get('/enertalk/deviceInformation', function(req, res){
+  var acceeToken = req.session.enertalk_access_token
+  var uuid = req.session.enertalk_uuid
+  enertalk.deviceInformation(accessToken, uuid, function(result){
+    res.send(result)
   })
 })
 app.get('/enertalk/realtimeUsage', function(req, res){
-  var accessToken = req.param('accessToken')
-  var uuid = req.param('uuid')
-
-  var options = {
-      url: 'https://api.encoredtech.com/1.2/devices/'+uuid+'/realtimeUsage',
-      method: 'GET',
-      headers: { 'Authorization' : 'Bearer '+accessToken },
-  }
-
-  console.log(options)
-
-  request(options, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-          console.log("Good")
-      }
-      else {
-        console.log(response.statusCode)
-      }
+  var acceeToken = req.session.enertalk_access_token
+  var uuid = req.session.enertalk_uuid
+  enertalk.getRealtimeUsage(acceeToken, uuid, function(result){
+      res.send(result)
   })
 })
 app.get('/enertalk/dashboard', function(req, res){
   var accessToken = req.session.enertalk_access_token
   var uuid = req.session.enertalk_uuid
 
-  // 세션이 없으면 생성
+  /* 세션이 없으면 생성 */
   if(accessToken == null){
     accessToken = req.param('accessToken')
     uuid = req.param('uuid')
     req.session.enertalk_access_token = accessToken
     req.session.enertalk_uuid = uuid
   }
-
   res.redirect('../#enertalk')
 })
-
+/**
+  Foobot api
+  Reference : http://api.foobot.io/apidoc/index.html
+*/
 app.get('/foobot', function(req, res){
-  // get parameter
-  user_id = 'jy93630@gmail.com'
-  password = 'a4809804'
+  res.render('foobot/login')
+})
+app.post('/foobot/login', function(req, res){
+  /**
+    login and redirect to dashboard
+  */
+  var user_id = req.param('user_id')
+  var auth_token = req.param('auth_token')
+  var uuid = null
 
   // make request options
   var headers = {
       'Content-Type': 'application/json',
-      'X-API-KEY-TOKEN': 'eyJhbGciOiJIUzI1NiJ9.eyJncmFudGVlIjoiank5MzYzMEBnbWFpbC5jb20iLCJpYXQiOjE0NzI3Nzc1MzIsInZhbGlkaXR5IjotMSwianRpIjoiOTg2ZjYyNGUtZWVlOC00MmEzLTg3ODItNmIyMzA4ZWExYjRmIiwicGVybWlzc2lvbnMiOlsidXNlcjpyZWFkIiwiZGV2aWNlOnJlYWQiXSwicXVvdGEiOjIwMCwicmF0ZUxpbWl0Ijo1fQ.8Kp-xFMNC_h9-iPAwkqmUFnwkXEOfL_u-8YQicE0gX0'
+      'X-API-KEY-TOKEN': auth_token
   }
   var options = {
-      url: 'http://api.foobot.io/v2/user/'+user_id+'/login/',
-      method: 'POST',
-      headers: headers,
-      form: {
-        "password" : password,
-      }
+      url: 'http://api.foobot.io/v2/owner/'+user_id+'/device/',
+      method: 'GET',
+      headers: headers
   }
 
-  // request station data
   request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         result = JSON.parse(body)
         console.log(result)
+
+        uuid = result[0].uuid // get uuid
+
+        req.session.foobot_auth_token = auth_token
+        req.session.foobot_uuid = uuid
+
+        // redirect
+        res.redirect('/#foobot')
       }
       else {
         console.log("Fail : "+response.statusCode)
@@ -290,7 +250,110 @@ app.get('/foobot', function(req, res){
       }
   })
 })
+app.get('/foobot/dashboard', function(req, res){
+  var auth_token = req.session.foobot_auth_token
+  var uuid = req.session.foobot_uuid
 
+  if(auth_token == null){
+    auth_token = req.param('auth_token')
+    uuid = req.param('uuid')
+
+    req.session.foobot_auth_token = auth_token
+    req.session.foobot_uuid = uuid
+  }
+
+  res.render('foobot/dashboard')
+})
+app.post('/foobot/data', function(req, res){
+  var uuid = req.param('uuid')
+  var auth_token = req.param('auth_token')
+  var start = req.param('start')
+  var end = req.param('end')
+  var average = req.param('average')
+  var url = 'http://api.foobot.io/v2/device/'+uuid+'/datapoint/'+start+'/'+end+'/'+average+'/'
+
+  var headers = {
+      'Content-Type': 'application/json',
+      'X-API-KEY-TOKEN': auth_token
+  }
+  var options = {
+      url: url,
+      method: 'GET',
+      headers: headers
+  }
+
+  request(options, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        result = JSON.parse(body)
+        console.log(result)
+        res.render('foobot/data', {result : result})
+      }
+      else {
+        console.log("Fail : "+response.statusCode)
+        console.log(body)
+      }
+  })
+})
+/**
+  smappee api
+  reference : https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
+  depend on : https://www.npmjs.com/package/smappee-nodejs
+*/
+app.get('/smappee', function(req, res){
+  res.render('smappee/login')
+})
+app.post('/smappee/login', function(req, res){
+  smappee = new SmappeeAPI({
+      debug: false,
+      clientId: "anjuyeong",
+      clientSecret: "tAdAAd9A2p",
+      username: req.param('username'),
+      password: req.param('password')
+  });
+  smappee.getServiceLocations(function(output) {
+    var serviceLocationId = output.serviceLocations[0].serviceLocationId;
+    res.redirect('dashboard?serviceLocationId='+serviceLocationId)
+  })
+})
+app.get('/smappee/dashboard', function(req, res){
+  var serviceLocationId = req.param('serviceLocationId')
+  res.render('smappee/dashboard', {serviceLocationId : serviceLocationId})
+})
+app.get('/smappee/getConsumptions', function(req, res){
+  var serviceLocationId = req.param('serviceLocationId')
+  var from = req.param('from')
+  var to = req.param('to')
+  var aggregation = req.param('aggregation')
+  smappee.getConsumptions(serviceLocationId, aggregation, from, to, function(result){
+    res.send(result)
+  })
+})
+app.get('/smappee/events', function(req, res){
+  var serviceLocationId = 17161
+
+  smappee.getServiceLocations(function(output) {
+    console.log(output);
+  })
+
+  var from = moment("2016-9-18 16:30", "YYYY-MM-DD HH:mm").valueOf();
+  var to = moment("2016-9-22 16:50", "YYYY-MM-DD HH:mm").valueOf();
+
+  smappee.getEvents(serviceLocationId, "1", from, to, 1000, function(output) {
+      console.log('getEvents() -->');
+      console.log(output);
+      console.log("");
+  });
+})
+
+/* SensorThing API */
+app.get('/sensorthings/things', function(req, res){
+  res.render('sensorthings/things')
+})
+app.get('/sensorthings/sensor', function(req, res){
+  sensorApi.getSensors(function(result){
+    res.render('sensorthings/sensor', {sensors : result})
+  })
+})
 app.listen(3000, function(){
     console.log('Conneted 3000 port!')
 })
