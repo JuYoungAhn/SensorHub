@@ -13,3 +13,10 @@ body{color:white}
 
 .foobot_data_table th {width:150px;text-align:center}
 .foobot_data_table td {text-align:center}
+.data_table th {width:150px;text-align:center}
+.data_table td {text-align:center}
+.modal-body {padding:20px;}
+.modal_table th {width:150px;padding:5px;}
+.modal_table td {padding:5px;width:250px;}
+.modal_table td input {width:300px;}
+.modal-content a {color:white}

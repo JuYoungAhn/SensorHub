@@ -1,46 +1,90 @@
 /**
-    By JuYoungAhn
-    Contact
     https://github.com/JuYoungAhn
 */
-var express = require('express');
+var express = require('express')
 var http = require('http');
 var url = require('url')
 var request = require('request')
-var app = express();
+var app = express()
 var bodyParser = require('body-parser')
-var multer = require('multer');
-var moment = require('moment');
-var querystring = require('querystring');
-var path = require("path");
+var multer = require('multer')
+var moment = require('moment')
+var querystring = require('querystring')
+var path = require("path")
 var session = require('express-session')
-var mongoose = require('mongoose');
-var sensorthings = require('./sensorthings.js');
-var SmappeeAPI = require('smappee-nodejs');
-var moment = require('moment');
-var enertalk = require('./my-enertalk');
-var sensorApi = require('./sensor-api');
-var smappee = null;
+var mongoose = require('mongoose')
+var sensorthings = require('./sensorthings.js')
+var SmappeeAPI = require('smappee-nodejs')
+var moment = require('moment')
+var enertalk = require('./my-enertalk')
+var sensorApi = require('./sensor-api')
+var smappee = null
+var async = require('async')
+var schedule = require('node-schedule')
+var csv = require('express-csv')
 
 // Load jsdom, and create a window.
-var jsdom = require("jsdom").jsdom;
-var doc = jsdom();
-var window = doc.defaultView;
+var jsdom = require("jsdom").jsdom
+var doc = jsdom()
+var window = doc.defaultView
 // Load jQuery with the simulated jsdom window.
-$ = require('jquery')(window);
+$ = require('jquery')(window)
 
-app.locals.pretty = true;
-app.set('view engine', 'jade');
-app.set('views', './views');
-app.use(express.static('public'));
+app.locals.pretty = true
+app.set('view engine', 'jade')
+app.set('views', './views')
+app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}))
-app.use(session({secret: '1234567890QWERTY'}));
+app.use(session({secret: '1234567890QWERTY'}))
+
+var session = null
+var loggingStart = false
+var enertalkLoggedOn = false
+var netatmoLoggedOn = false
+var smappeeLoggedOn = false
+var foobotLoggedOn = false
+
+loggingStarted = true;
+setInterval(function(){
+    if(loggingStarted){
+      var locals = {}
+      if(enertalkLoggedOn){
+        async.series([
+            function(callback) {
+                enertalk.getRealtimeUsage(session.enertalk_access_token, session.enertalk_uuid, function(result){
+                  locals.enertalkResult = result
+                  callback()
+                })
+            },
+            function(callback){
+                sensorApi.convertEnertalk(locals.enertalkResult, function(result){
+                  locals.enertalkJson = result
+                  callback()
+                })
+            },
+            function(callback) {
+                //sensorApi.insertObservation(locals.enertalkJson, function(result){
+                //  locals.observation = result
+                //  callback()
+                // })
+                console.log(locals.enertalkResult)
+                callback()
+            }
+        ], function(err) {
+              if (err) return next(err)
+              console.log("enertalk observation is logged at : "+locals.enertalkResult.timeStamp)
+        })
+      }
+    }
+}, 5000)
+
 
 /* session을 pass하지 않고도 view에서 사용할 수 있게 하는 코드  */
 app.use(function(req,res,next){
-    res.locals.session = req.session;
-    next();
-});
+    session = req.session
+    res.locals.session = req.session
+    next()
+})
 
 // Main Page
 app.get('/', function(req, res){
@@ -95,12 +139,13 @@ app.get('/netatmo/access_token', function(req, res){
   })
 })
 app.get('/netatmo/dashboard', function(req, res){
-  var access_token = req.session.netatmo_access_token
-  var device_id = req.session.netatmo_device_id
-
-  // 세션 없을 때
-  if(access_token == null){
-    // get parameter를 세션으로
+  var access_token = null;
+  var device_id = null;
+  if(req.param('access_token') == null){
+    access_token = req.session.netatmo_access_token
+    device_id = req.session.netatmo_device_id
+  }
+  else {
     access_token = req.param('access_token')
     device_id = req.param('device_id')
     req.session.netatmo_access_token = access_token
@@ -138,6 +183,9 @@ app.get('/netatmo/dashboard', function(req, res){
 
         console.log("Devices : ")
         console.log(result.body.devices)
+
+        console.log("Modules : ")
+        console.log(result.body.devices[0].modules)
 
         var devices = result.body.devices // send devices info to view page
         req.session.devices = devices
@@ -193,6 +241,7 @@ app.get('/enertalk/realtimeUsage', function(req, res){
   })
 })
 app.get('/enertalk/dashboard', function(req, res){
+  enertalkLoggedOn = true
   var accessToken = req.session.enertalk_access_token
   var uuid = req.session.enertalk_uuid
 
@@ -349,9 +398,41 @@ app.get('/smappee/events', function(req, res){
 app.get('/sensorthings/things', function(req, res){
   res.render('sensorthings/things')
 })
-app.get('/sensorthings/sensor', function(req, res){
+app.get('/sensorthings/sensors', function(req, res){
   sensorApi.getSensors(function(result){
-    res.render('sensorthings/sensor', {sensors : result})
+    console.log(result)
+    res.render('sensorthings/sensors', {sensors : result})
+  })
+})
+app.get('/sensorthings/datastreams', function(req, res){
+  sensorApi.getDatastreams(function(result){
+    res.render('sensorthings/datastreams', {datastreams : result})
+  })
+})
+app.get('/sensorthings/observations', function(req, res, next){
+  var locals = {};
+  async.parallel([
+      function(callback) {
+        sensorApi.getObservations(function(result){
+          locals.observations = result
+          callback()
+        })
+      },
+      function(callback) {
+        sensorApi.getDatastreams(function(result){
+          locals.dataStreams = result
+          callback()
+        })
+      }
+  ], function(err) {
+      if (err) return next(err);
+      res.render('sensorthings/observations', locals)
+  });
+})
+app.get('/sensorthings/observedProperties', function(req, res){
+  sensorApi.getObservedProperties(function(result){
+    console.log(result)
+    res.render('sensorthings/observed_properties', {observedProperties : result})
   })
 })
 app.listen(3000, function(){

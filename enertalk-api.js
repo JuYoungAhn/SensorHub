@@ -111,5 +111,4 @@ function EnertalkAPI(settings) {
     }
 }
 
-
 module.exports = EnertalkAPI;

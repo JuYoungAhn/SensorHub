@@ -8,3 +8,6 @@ function getData(uuid, auth_token){
 
   location.href = 'foobot/data?uuid='+uuid+'&auth_token='+auth_token+'&start='+start+'&end='+end+"&average="+average
 }
+var foobotGetData = function(){
+  foobot_form.submit()
+}

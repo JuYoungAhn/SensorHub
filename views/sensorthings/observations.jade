@@ -1,0 +1,135 @@
+extends ../template
+block content
+  body
+    h1 Observations
+    div
+      button(type='button')
+        a(data-toggle='modal', data-target='#myModal') 추가하기
+    table(class='data_table')
+      tr
+        th phenomenonTime
+        th result
+        th resultTime
+        th uuid
+        th metadata.created
+        th metadata.modified
+        th dataStreamsId
+      each observation in locals.observations
+        tr
+          td #{observation.phenomenonTime}
+          td #{observation.result}
+          td #{observation.resultTime}
+          td #{observation.uuid}
+          td #{observation.metadata.created}
+          td #{observation.metadata.modified}
+          td #{observation.dataStreamsId}
+
+    // Modal
+    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+      .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') ×
+            h4#myModalLabel.modal-title Observation 추가
+          .modal-body
+            table(class='modal_table')
+              tr
+                th @type
+                td
+                  input(type='text' value='Observation' readonly)
+              tr
+                th phenomenonTime
+                td
+                  input(type='text' name="Observation" value='2016-09-28')
+              tr
+                th result
+                td
+                  input(type='text' name='result' value='string')
+              tr
+                th resultTime
+                td
+                  input(type='text' name='resultTime' value='2016-09-28')
+              tr
+                th @context
+                td
+                  input(type='text' value='http://webizing.org' readonly)
+              tr
+                th uuid
+                td
+                  input(type='text' name='uuid' value='string')
+              tr
+                th name
+                td
+                  input(type='text' name='name' value='string')
+              tr
+                th alternateName
+                td
+                  input(type='text' name='alternateName' value='string')
+              tr
+                th description
+                td
+                  input(type='text' name='description' value='string')
+              tr
+                th size
+                td
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;x
+                td
+                  input(type='text' name='size_x')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;y
+                td
+                  input(type='text' name='size_y')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;z
+                td
+                  input(type='text' name='size_z')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;id
+                td
+                  input(type='text' name='size_id')
+              tr
+                th category
+                td
+                  input(type='text' name='category' value='string')
+              tr
+                th sameAs
+                td
+                  input(type='text' name='sameAs' value='string')
+              tr
+                th image
+                td
+                  input(type='text' name='image' value='string')
+              tr
+                th metadata
+                td
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;author
+                td
+                  input(type='text' name='metadata_author' value='string')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;created
+                td
+                  input(type='text' name='metadata_created' value='2016-09-28')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;modified
+                td
+                  input(type='text' name='metadata_modified' value='2016-09-28')
+              tr
+                th dataStreamId
+                td
+                  select
+                    for datastream in locals.dataStreams
+                      option(value='#{datastream.uuid}') #{datastream.uuid}
+
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') 닫기
+            button.btn.btn-primary(type='button')
+              a(onclick='addObservation()') 추가
+
+script(type='text/javascript').
+  $(document).ready(function(){
+      $('#myModal').on('shown.bs.modal', function () {
+      })
+  });
