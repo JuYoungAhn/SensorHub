@@ -1,0 +1,111 @@
+extends ../template
+block content
+  body
+    h1 Sensor
+    div
+      button(type='button')
+        a(data-toggle='modal', data-target='#myModal') 추가하기
+    table(class='data_table')
+      tr
+        th name
+        th description
+        th definition
+        th encodingType
+        th place
+        th location
+        th uuid
+        th image
+        th metadata
+      each sensor in sensors
+        tr
+          td #{sensor.name}
+          td #{sensor.description}
+          td #{sensor.definition}
+          td #{sensor.encodingType}
+          td #{sensor.place}
+          td #{sensor.location}
+          td #{sensor.uuid}
+          td #{sensor.image}
+          td #{sensor.metadata}
+
+    // Modal
+    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+      .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') ×
+            h4#myModalLabel.modal-title Sensor 추가
+          .modal-body
+            table(class='modal_table')
+              tr
+                th name
+                td
+                  input(type='text' name='name')
+              tr
+                th description
+                td
+                  input(type='text' name='description')
+              tr
+                th definition
+                td
+                  input(type='text' name='definition')
+              tr
+                th encodingType
+                td
+                  input(type='text' name='encodingType')
+              tr
+                th place
+                td
+                  input(type='text' name='place')
+              tr
+                th location
+                td
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;geometry
+                td
+                  input(type='text' name='geometry')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;altitude
+                td
+                  input(type='text' name='altitude')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;id
+                td
+                  input(type='text' name='id')
+              tr
+                th uuid
+                td
+                  input(type='text' name='uuid')
+              tr
+                th alternateName
+                td
+                  input(type='text' name='alternateName')
+              tr
+                th  size
+                td
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;x
+                td
+                  input(type='text' name='size_x')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;y
+                td
+                  input(type='text' name='size_y')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;z
+                td
+                  input(type='text' name='size_z')
+              tr
+                th &nbsp;&nbsp;&nbsp;&nbsp;id
+                td
+                  input(type='text' name='size_id')
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') 닫기
+            button.btn.btn-primary(type='button') 추가
+
+script(type='text/javascript').
+  $(document).ready(function(){
+      $('#myModal').on('shown.bs.modal', function () {
+      })
+  });

@@ -43,17 +43,17 @@ block content
           = device.modules.length
           개의 모듈이 있습니다.
           br
-          each module in device.modules
-              span Module ID : #{module._id}
+          each module, index in device.modules
+              span Module ID : #{module._id} #{index}번째 모듈
               br
               span Module Name : #{module.module_name}
               br
               span Battery : #{module.battery_percent}%
               br
               button
-                a(onclick="getRealTimeDataModule('#{session.netatmo_access_token}', '#{session.netatmo_device_id}', 'module')") 측정하기
+                a(onclick="getRealTimeDataModule('#{session.netatmo_access_token}', '#{session.netatmo_device_id}', #{index} ,'module#{index}')") 측정하기
               div
-                table(class='table module')
+                table(class='table module#{index}')
                   tr
                     th 시간
                     th 온도

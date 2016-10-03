@@ -51,7 +51,7 @@ function getNetatmoRealTimeData(access_token, device_id){
   });
 }
 
-function getRealTimeDataModule(access_token, device_id, table_name){
+function getRealTimeDataModule(access_token, device_id, module_index, table_name){
   $.ajaxSetup({
     headers: null
   });
@@ -61,10 +61,10 @@ function getRealTimeDataModule(access_token, device_id, table_name){
     url: 'https://api.netatmo.com/api/getstationsdata?access_token='+access_token+'&device_id='+device_id,
     success : function(result){
       var data = {
-                  'measured_time' : result.body.devices[0].modules[0].dashboard_data.time_utc,
-                  'humidity' : result.body.devices[0].modules[0].dashboard_data.Humidity,
-                  'temperature' : result.body.devices[0].modules[0].dashboard_data.Temperature,
-                  'CO2' : result.body.devices[0].modules[0].dashboard_data.CO2
+                  'measured_time' : result.body.devices[0].modules[module_index].dashboard_data.time_utc,
+                  'humidity' : result.body.devices[0].modules[module_index].dashboard_data.Humidity,
+                  'temperature' : result.body.devices[0].modules[module_index].dashboard_data.Temperature,
+                  'CO2' : result.body.devices[0].modules[module_index].dashboard_data.CO2
       }
 
       $("."+table_name).append(`

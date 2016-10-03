@@ -1,0 +1,20 @@
+extends ../template
+block content
+  body
+    h1 ObservedProperties
+    table(class='data_table')
+      tr
+        th name
+        th definition
+        th description
+        th uuid
+        th metadata.created
+        th metadata.modified
+      each observedProperty in observedProperties
+        tr
+          td #{observedProperty.name}
+          td #{observedProperty.definition}
+          td #{observedProperty.description}
+          td #{observedProperty.uuid}
+          td #{observedProperty.metadata.created}
+          td #{observedProperty.metadata.modified}

@@ -1,7 +1,7 @@
 block content
   body
     h1 Foobot Dashboard
-    form(action='foobot/data', method='post', name='foobot_form')
+    form(action='foobot/data', method='post', name='foobot_form' class='foobot_form')
       div
         table
           tr
@@ -14,7 +14,7 @@ block content
               input(name="auth_token" value="#{session.foobot_auth_token}")
       h4 get data by start end
       button
-        a(href="#" onclick="foobot_form.submit()") 측정하기
+          a(href="#" onclick="foobotGetData()") 측정하기
       table
         tr
           th start

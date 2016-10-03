@@ -31,13 +31,8 @@ $(document).ready(function(){
         //$("#myModal").modal('show');
     });
 });
-
-var test = function(){
-  alert("AA")
-  console.log("AA")
-  $.get("http://scratchpad.sensorup.com/OGCSensorThings/v1.0/Observations?$top=5",function(response, status){
-      console.log(response);
-  });
+var addObservation = function(){
+  alert("Add Observation")
 }
 //simple chart
 $(function() {
