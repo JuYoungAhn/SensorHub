@@ -16,6 +16,7 @@ block content
         th uuid
         th image
         th metadata
+        th
       each sensor in sensors
         tr
           td #{sensor.name}
@@ -27,6 +28,8 @@ block content
           td #{sensor.uuid}
           td #{sensor.image}
           td #{sensor.metadata}
+          td
+            a(onclick="deleteObject('Sensors', '#{sensor.uuid}')") X
 
     // Modal
     #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
@@ -73,10 +76,7 @@ block content
                 th &nbsp;&nbsp;&nbsp;&nbsp;id
                 td
                   input(type='text' name='id')
-              tr
-                th uuid
-                td
-                  input(type='text' name='uuid')
+
               tr
                 th alternateName
                 td
@@ -101,8 +101,9 @@ block content
                 td
                   input(type='text' name='size_id')
           .modal-footer
-            button.btn.btn-default(type='button', data-dismiss='modal') 닫기
-            button.btn.btn-primary(type='button') 추가
+            button.btn.btn-default.modal-close(type='button', data-dismiss='modal') 닫기
+            button.btn.btn-primary(type='button')
+              a(onclick='addSensor()') 추가
 
 script(type='text/javascript').
   $(document).ready(function(){

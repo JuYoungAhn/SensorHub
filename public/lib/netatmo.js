@@ -1,7 +1,7 @@
 /**
   login to get access token
 */
-function netatmoLogin(){
+var netatmoLogin = function(){
   client_id = $(".client_id").val()
   client_secret = $(".client_secret").val()
   id = $(".id").val()
@@ -17,7 +17,7 @@ function netatmoLogin(){
 /**
   getRealTimeData
 */
-function getNetatmoRealTimeData(access_token, device_id){
+var getNetatmoRealTimeData = function(access_token, device_id){
   $.ajaxSetup({
     headers: null
   });
@@ -51,7 +51,7 @@ function getNetatmoRealTimeData(access_token, device_id){
   });
 }
 
-function getRealTimeDataModule(access_token, device_id, module_index, table_name){
+var getRealTimeDataModule = function(access_token, device_id, module_index, table_name){
   $.ajaxSetup({
     headers: null
   });

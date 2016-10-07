@@ -12,6 +12,7 @@ block content
         th metadata.modified
         th sersorId
         th observedPropertyId
+        th
       each datastream in datastreams
         tr
           td #{datastream.unitOfMeasurement.name}
@@ -22,3 +23,5 @@ block content
           td #{datastream.metadata.modified}
           td #{datastream.sensorId}
           td #{datastream.observedPropertyId}
+          td
+            a(onclick="deleteObject('dataStreams', '#{datastream.uuid}')") X

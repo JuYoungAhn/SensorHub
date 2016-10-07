@@ -1,0 +1,34 @@
+extends ../template
+block content
+  body
+    h1 DataLogging
+    h4 Sensors
+    table(id='datalogging_table')
+      tr
+        th Enertalk
+        td
+          if session.enertalk_logged_on
+            span 로깅중
+          else
+            span X
+      tr
+        th Foobot
+        td
+          if session.foobot_logged_on
+            span 로깅중
+          else
+            span X
+      tr
+        th Netatmo
+        td
+          if session.netatmo_logged_on
+            span 로깅중
+          else
+            span X
+      tr
+        th Smappee
+        td
+          if session.smappee_logged_on
+            span 로깅중
+          else
+            span X

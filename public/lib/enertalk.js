@@ -1,7 +1,7 @@
 /**
   에너톡 로그인 버튼 클릭시 실행
 */
-function enertalkLogin(){
+var enertalkLogin = function(){
   var authUri = "https://enertalk-auth.encoredtech.com/login";
 
   // TODO: fill in your client ID
@@ -28,7 +28,7 @@ function enertalkLogin(){
 /**
   realtimeUsage API를 통해 현재 전력 정보를 받아옴
 */
-function getEnertalkRealtimeData(accessToken, uuid){
+var getEnertalkRealtimeData = function(accessToken, uuid){
   $.ajaxSetup({
     headers: { 'Authorization': 'Bearer '+accessToken }
   });
