@@ -72,7 +72,7 @@ setInterval(function(){
             }
         ], function(err) {
               if (err) return next(err)
-              console.log("enertalk observation is logged at : "+locals.enertalkResult.timeStamp)
+              console.log("enertalk observation is logged at : "+locals.enertalkResult.timestamp)
         })
       }
     }

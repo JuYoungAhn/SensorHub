@@ -61,6 +61,7 @@ function EnertalkAPI(settings) {
             }
         })
     }
+
     /* Get Access Token and UUID */
     this.getUuid = function(code, callback){
         getAccessToken(code, function(accessToken, refreshToken){
