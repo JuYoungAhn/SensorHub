@@ -21,6 +21,9 @@ block content
   div(class='foobot dashboard')
     if session.foobot_auth_token != null
       include foobot/dashboard
+  div(class='smappee dashboard')
+    if session.smappee_logged_on != null
+      include smappee/dashboard
 
   // a(href='enertalk' type='button', data-toggle='modal', data-target='#myModal')
   //  | Enertalk Login

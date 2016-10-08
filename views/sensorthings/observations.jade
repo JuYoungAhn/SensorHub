@@ -7,22 +7,23 @@ block content
         a(data-toggle='modal', data-target='#myModal') 추가하기
     table(class='data_table')
       tr
+        th name
         th phenomenonTime
         th result
         th resultTime
         th uuid
-        th metadata.created
-        th metadata.modified
         th dataStreamsId
+        th
       each observation in locals.observations
         tr
+          td #{observation.name}
           td #{observation.phenomenonTime}
           td #{observation.result}
           td #{observation.resultTime}
           td #{observation.uuid}
-          td #{observation.metadata.created}
-          td #{observation.metadata.modified}
           td #{observation.dataStreamsId}
+          td
+            a(onclick="deleteObject('Observations', '#{observation.uuid}')") X
 
     // Modal
     #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')

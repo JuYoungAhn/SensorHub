@@ -1,4 +1,5 @@
 /**
+    KIST IMRC SensorHub App
     https://github.com/JuYoungAhn
 */
 var express = require('express')
@@ -10,10 +11,7 @@ var bodyParser = require('body-parser')
 var multer = require('multer')
 var moment = require('moment')
 var querystring = require('querystring')
-var path = require("path")
 var session = require('express-session')
-var mongoose = require('mongoose')
-var sensorthings = require('./sensorthings.js')
 var SmappeeAPI = require('smappee-nodejs')
 var moment = require('moment')
 var enertalk = require('./my-enertalk')
@@ -21,7 +19,6 @@ var sensorApi = require('./sensor-api')
 var smappee = null
 var async = require('async')
 var schedule = require('node-schedule')
-var csv = require('express-csv')
 
 // Load jsdom, and create a window.
 var jsdom = require("jsdom").jsdom
@@ -38,51 +35,30 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.use(session({secret: '1234567890QWERTY'}))
 
 var session = null
-var loggingStart = false
 var enertalkLoggedOn = false
 var netatmoLoggedOn = false
 var smappeeLoggedOn = false
 var foobotLoggedOn = false
+var loggingStarted = false
 
-loggingStarted = true;
-setInterval(function(){
+/* data logging */
+var j = schedule.scheduleJob(' */5 * * * *', function(){
     if(loggingStarted){
-      var locals = {}
-      if(enertalkLoggedOn){
-        async.series([
-            function(callback) {
-                enertalk.getRealtimeUsage(session.enertalk_access_token, session.enertalk_uuid, function(result){
-                  locals.enertalkResult = result
-                  callback()
-                })
-            },
-            function(callback){
-                sensorApi.convertEnertalk(locals.enertalkResult, function(result){
-                  locals.enertalkJson = result
-                  callback()
-                })
-            },
-            function(callback) {
-                //sensorApi.insertObservation(locals.enertalkJson, function(result){
-                //  locals.observation = result
-                //  callback()
-                // })
-                console.log(locals.enertalkResult)
-                callback()
-            }
-        ], function(err) {
-              if (err) return next(err)
-              console.log("enertalk observation is logged at : "+locals.enertalkResult.timestamp)
-        })
+      // smappee 로그인이 완료되었을 때만 실행
+      if("smappee_logged_on" in session){
+        sensorApi.smappeeLogging(smappee, session.smappee_service_location_id)
+      }
+      if("enertalk_logged_on" in session){
+        sensorApi.enertalkLogging(session.enertalk_access_token, session.enertalk_uuid)
       }
     }
-}, 5000)
+});
 
-
-/* session을 pass하지 않고도 view에서 사용할 수 있게 하는 코드  */
 app.use(function(req,res,next){
+    /* session을 pass하지 않고도 view에서 사용할 수 있게 하는 코드  */
     session = req.session
     res.locals.session = req.session
+    loggingStarted = true
     next()
 })
 
@@ -130,6 +106,7 @@ app.get('/netatmo/access_token', function(req, res){
       if (!error && response.statusCode == 200) {
         json = JSON.parse(body) // parse data to json
         access_token = json.access_token // get accee_token
+
         res.render('netatmo/access_token', {access_token : access_token, device_id : device_id})
       }
       else {
@@ -139,18 +116,13 @@ app.get('/netatmo/access_token', function(req, res){
   })
 })
 app.get('/netatmo/dashboard', function(req, res){
-  var access_token = null;
-  var device_id = null;
-  if(req.param('access_token') == null){
-    access_token = req.session.netatmo_access_token
-    device_id = req.session.netatmo_device_id
-  }
-  else {
-    access_token = req.param('access_token')
-    device_id = req.param('device_id')
-    req.session.netatmo_access_token = access_token
-    req.session.netatmo_device_id = device_id
-  }
+  var access_token = req.param('access_token')
+  var device_id = req.param('device_id')
+
+  /* set session */
+  req.session.netatmo_access_token = access_token
+  req.session.netatmo_device_id = device_id
+  req.session.netatmo_logged_on = true
 
   // make request options
   var headers = {
@@ -241,9 +213,9 @@ app.get('/enertalk/realtimeUsage', function(req, res){
   })
 })
 app.get('/enertalk/dashboard', function(req, res){
-  enertalkLoggedOn = true
   var accessToken = req.session.enertalk_access_token
   var uuid = req.session.enertalk_uuid
+  req.session.enertalk_logged_on = true
 
   /* 세션이 없으면 생성 */
   if(accessToken == null){
@@ -262,9 +234,7 @@ app.get('/foobot', function(req, res){
   res.render('foobot/login')
 })
 app.post('/foobot/login', function(req, res){
-  /**
-    login and redirect to dashboard
-  */
+  // login and redirect to dashboard
   var user_id = req.param('user_id')
   var auth_token = req.param('auth_token')
   var uuid = null
@@ -289,6 +259,7 @@ app.post('/foobot/login', function(req, res){
 
         req.session.foobot_auth_token = auth_token
         req.session.foobot_uuid = uuid
+        req.session.foobot_logged_on = true
 
         // redirect
         res.redirect('/#foobot')
@@ -360,8 +331,10 @@ app.post('/smappee/login', function(req, res){
       password: req.param('password')
   });
   smappee.getServiceLocations(function(output) {
-    var serviceLocationId = output.serviceLocations[0].serviceLocationId;
-    res.redirect('dashboard?serviceLocationId='+serviceLocationId)
+    var serviceLocationId = output.serviceLocations[0].serviceLocationId; // get location id
+    req.session.smappee_service_location_id = serviceLocationId // 세션 생성
+    req.session.smappee_logged_on = true // smappee logged on flag
+    res.redirect('/#smappee')
   })
 })
 app.get('/smappee/dashboard', function(req, res){
@@ -377,24 +350,14 @@ app.get('/smappee/getConsumptions', function(req, res){
     res.send(result)
   })
 })
-app.get('/smappee/events', function(req, res){
-  var serviceLocationId = 17161
-
-  smappee.getServiceLocations(function(output) {
-    console.log(output);
+app.get('/smappee/getServiceLocationInfo', function(req, res){
+  var serviceLocationId = req.param('serviceLocationId')
+  smappee.getServiceLocationInfo(serviceLocationId, function(result){
+    res.send(result)
   })
-
-  var from = moment("2016-9-18 16:30", "YYYY-MM-DD HH:mm").valueOf();
-  var to = moment("2016-9-22 16:50", "YYYY-MM-DD HH:mm").valueOf();
-
-  smappee.getEvents(serviceLocationId, "1", from, to, 1000, function(output) {
-      console.log('getEvents() -->');
-      console.log(output);
-      console.log("");
-  });
 })
 
-/* SensorThing API */
+/*********************** SensorThing API ***********************/
 app.get('/sensorthings/things', function(req, res){
   res.render('sensorthings/things')
 })
@@ -434,6 +397,9 @@ app.get('/sensorthings/observedProperties', function(req, res){
     console.log(result)
     res.render('sensorthings/observed_properties', {observedProperties : result})
   })
+})
+app.get('/sensorthings/dataLogging', function(req, res){
+  res.render('sensorthings/datalogging')
 })
 app.listen(3000, function(){
     console.log('Conneted 3000 port!')

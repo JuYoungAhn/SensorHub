@@ -4,22 +4,16 @@ html(lang='en')
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
     title Sensor Hub
-    link(rel='stylesheet', type='text/css', href='/bootstrap/css/bootstrap.min.css')
-    link(rel='stylesheet', type='text/css', href='/font-awesome/css/font-awesome.min.css')
-    link(rel='stylesheet', type='text/css', href='/bootstrap/theme/local.css')
-    script(type='text/javascript', src='/jquery-3.1.0.min.js')
-    script(type='text/javascript', src='/bootstrap/js/bootstrap.min.js')
-    // you need to include the shieldui css and js assets in order for the charts to work
-    link(rel='stylesheet', type='text/css', href='http://www.shieldui.com/shared/components/latest/css/light-bootstrap/all.min.css')
-    link#gridcss(rel='stylesheet', type='text/css', href='http://www.shieldui.com/shared/components/latest/css/dark-bootstrap/all.min.css')
-    script(type='text/javascript', src='http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js')
-    script(type='text/javascript', src='http://www.prepbootstrap.com/Content/js/gridData.js')
-    script(type='text/javascript' src='/jquery-3.1.0.min.js')
-    script(type='text/javascript' src='/netatmo.js')
-    script(type='text/javascript' src='/enertalk.js')
-    script(type='text/javascript' src='/foobot.js')
-    script(type='text/javascript' src='/common.js')
-    link(href='/style.css', rel='stylesheet')
+    link(rel='stylesheet', type='text/css', href='/externel/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css', href='/externel/bootstrap/theme/local.css')
+    script(type='text/javascript', src='/externel/jquery-3.1.0.min.js')
+    script(type='text/javascript', src='/externel/bootstrap/js/bootstrap.min.js')
+    script(type='text/javascript' src='/lib/netatmo.js')
+    script(type='text/javascript' src='/lib/enertalk.js')
+    script(type='text/javascript' src='/lib/foobot.js')
+    script(type='text/javascript' src='/lib/common.js')
+    script(type='text/javascript' src='/lib/sensorthings.js')
+    link(href='/stylesheets/style.css', rel='stylesheet')
   body
     #wrapper
       nav.navbar.navbar-inverse.navbar-fixed-top(role='navigation')
@@ -36,45 +30,58 @@ html(lang='en')
               a(href='/#navigater')
                 i.fa.fa-bullseye
                 |  Home
+            li
+              a
+                i.fa.fa-bullseye
+                  | Sensor List
             if session.netatmo_access_token != null
               li
-                a(href='/#netatmo' onclick='netatmoDashboard()')
+                a(href='/#netatmo')
+                  img(src='/images/netatmo.png' class='icon')
                   i.fa.fa-bullseye
-                  | Netatmo
+                  | &nbsp;Netatmo
             if session.enertalk_access_token != null
               li
-                a(href='/#enertalk' onclick="enertalkDashboard()")
+                a(href='/#enertalk')
+                  img(src='/images/enertalk.png' class='icon')
                   i.fa.fa-bullseye
-                  | Enertalk
+                  | &nbsp;Enertalk
             if session.foobot_auth_token != null
               li
-                a(href='/#foobot' onclick="foobotDashboard()")
+                a(href='/#foobot')
+                  img(src='/images/foobot.png' class='icon')
                   i.fa.fa-bullseye
-                  | Foobot
+                  | &nbsp;Foobot
+            if session.smappee_logged_on
+              li
+                a(href='/#smappee')
+                  img(src='/images/smappee.png' class='icon')
+                  i.fa.fa-bullseye
+                  | &nbsp;Smappee
             li
-              a(href='/sensorthings/things')
+              a
                 i.fa.fa-bullseye
-                | Things
+                  | SensorThings Dashboard
             li
               a(href='/sensorthings/sensors')
                 i.fa.fa-bullseye
-                | Sensors
+                | - Sensors
             li
               a(href='/sensorthings/observations')
                 i.fa.fa-bullseye
-                | Observations
+                | - Observations
             li
               a(href='/sensorthings/observedProperties')
                 i.fa.fa-bullseye
-                | ObservedProperties
+                | - ObservedProperties
             li
               a(href='/sensorthings/datastreams')
                 i.fa.fa-bullseye
-                | Datastreams
+                | - Datastreams
             li
-              a(href='/sensorthings/datalogging')
+              a(href='/sensorthings/dataLogging')
                 i.fa.fa-bullseye
-                | Datalogging
+                | - Datalogging
           ul.nav.navbar-nav.navbar-right.navbar-user
             li.dropdown.messages-dropdown
               a.dropdown-toggle(href='#', data-toggle='dropdown')
