@@ -1,6 +1,5 @@
 /**
     KIST IMRC SensorHub App
-    https://github.com/JuYoungAhn
 */
 var express = require('express')
 var http = require('http');
@@ -19,6 +18,8 @@ var sensorApi = require('./sensor-api')
 var smappee = null
 var async = require('async')
 var schedule = require('node-schedule')
+var routes = require('./routes/index')
+var router = express.Router()
 
 // Load jsdom, and create a window.
 var jsdom = require("jsdom").jsdom
@@ -33,6 +34,7 @@ app.set('views', './views')
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(session({secret: '1234567890QWERTY'}))
+app.use(require('./controllers'))
 
 var session = null
 var enertalkLoggedOn = false
@@ -52,7 +54,7 @@ var j = schedule.scheduleJob(' */5 * * * *', function(){
         sensorApi.enertalkLogging(session.enertalk_access_token, session.enertalk_uuid)
       }
     }
-});
+})
 
 app.use(function(req,res,next){
     /* session을 pass하지 않고도 view에서 사용할 수 있게 하는 코드  */
@@ -388,7 +390,7 @@ app.get('/sensorthings/observations', function(req, res, next){
         })
       }
   ], function(err) {
-      if (err) return next(err);
+      if (err) return next(err)
       res.render('sensorthings/observations', locals)
   });
 })
