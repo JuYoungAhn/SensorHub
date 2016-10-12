@@ -23,11 +23,11 @@ html(lang='en')
             span.icon-bar
             span.icon-bar
             span.icon-bar
-          a.navbar-brand(href='/') Sensor Hub
+          a.navbar-brand(href='/sensorhub') Sensor Hub
         .collapse.navbar-collapse.navbar-ex1-collapse
           ul#active.nav.navbar-nav.side-nav
             li.selected
-              a(href='/#navigater')
+              a(href='/sensorhub#navigater')
                 i.fa.fa-bullseye
                 |  Home
             li
@@ -36,25 +36,25 @@ html(lang='en')
                   | Sensor List
             if session.netatmo_access_token != null
               li
-                a(href='/#netatmo')
+                a(href='/sensorhub#netatmo')
                   img(src='/images/netatmo.png' class='icon')
                   i.fa.fa-bullseye
                   | &nbsp;Netatmo
             if session.enertalk_access_token != null
               li
-                a(href='/#enertalk')
+                a(href='/sensorhub#enertalk')
                   img(src='/images/enertalk.png' class='icon')
                   i.fa.fa-bullseye
                   | &nbsp;Enertalk
             if session.foobot_auth_token != null
               li
-                a(href='/#foobot')
+                a(href='/sensorhub#foobot')
                   img(src='/images/foobot.png' class='icon')
                   i.fa.fa-bullseye
                   | &nbsp;Foobot
             if session.smappee_logged_on
               li
-                a(href='/#smappee')
+                a(href='/sensorhub#smappee')
                   img(src='/images/smappee.png' class='icon')
                   i.fa.fa-bullseye
                   | &nbsp;Smappee

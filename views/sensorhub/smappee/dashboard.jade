@@ -10,7 +10,7 @@ block content
             input(type='text' name='location' value="#{session.smappee_service_location_id}" readonly)
 
       h4 Get Consumptions
-      form(action='getConsumptions' method='get' name='get_consumtions_form')
+      form(action='smappee/getConsumptions' method='get' name='get_consumtions_form')
         input(type='hidden' name='serviceLocationId' value="#{session.smappee_service_location_id}")
         div
           table
@@ -30,7 +30,7 @@ block content
             a(onclick='get_consumtions_form.submit()') getConsumptions
 
       h4 Get Service Locations
-      form(action='getServiceLocationInfo' method='get' name='get_service_location_info_form')
+      form(action='smappee/getServiceLocationInfo' method='get' name='get_service_location_info_form')
         input(type='hidden' name='serviceLocationId' value="#{session.smappee_service_location_id}")
         div
           button

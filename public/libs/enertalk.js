@@ -8,8 +8,8 @@ var enertalkLogin = function(){
   var clientId = "ank5MzYzMEBuYXZlci5jb21faW1yYw==";
   var clientIdParam = "?client_id=" + clientId;
 
-  // important! redirectUri should be identical with the uri which you write on enertalk web page
-  var redirectUri = "http://localhost:3000/callback";
+  // redirectUri should be identical with the uri which you write on enertalk web page
+  var redirectUri = "http://localhost:3000/enertalk/callback";
   var redirectUriParam = "&redirect_uri=" + redirectUri;
 
   var responseTypeParam = "&response_type=code";
